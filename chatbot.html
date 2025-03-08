@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISM Chatbot</title>
+    <style>
+        /* Chatbot container */
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        /* Chatbot header */
+        #chatbot-header {
+            background-color: #0078d7;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Chatbot messages container */
+        #chatbot-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* Chatbot input container */
+        #chatbot-input {
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+
+        /* Chatbot input field */
+        #chatbot-input-field {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+
+        /* Chatbot send button */
+        #chatbot-send-btn {
+            padding: 10px;
+            background-color: #0078d7;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Message styling */
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .message.user {
+            background-color: #f1f1f1;
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            background-color: #0078d7;
+            color: #fff;
+            align-self: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot container -->
+    <div id="chatbot-container">
+        <!-- Chatbot header -->
+        <div id="chatbot-header">ISM Chatbot</div>
+
+        <!-- Chatbot messages container -->
+        <div id="chatbot-messages"></div>
+
+        <!-- Chatbot input container -->
+        <div id="chatbot-input">
+            <input type="text" id="chatbot-input-field" placeholder="Type a message...">
+            <button id="chatbot-send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Predefined responses
+        const responses = {
+            "hi": "Hello! How can I assist you today?",
+            "hello": "Hi there! What can I do for you?",
+            "how are you": "I'm just a bot, but I'm here to help!",
+            "what is your name": "I'm your friendly ISM Chatbot.",
+            "help": "Sure! Here are some things I can help with: \n1. Reset your password. \n2. Check system status. \n3. Provide IT support contact info.",
+            "bye": "Goodbye! Have a great day! 👋",
+            "default": "I'm sorry, I didn't understand that. Can you please rephrase?"
+        };
+
+        // Get DOM elements
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotInputField = document.getElementById('chatbot-input-field');
+        const chatbotSendButton = document.getElementById('chatbot-send-btn');
+
+        // Send message function
+        function sendMessage() {
+            const userMessage = chatbotInputField.value.trim().toLowerCase();
+            if (!userMessage) return;
+
+            // Display user message
+            appendMessage('user', userMessage);
+            chatbotInputField.value = '';
+
+            // Get chatbot response
+            const botResponse = getResponse(userMessage);
+
+            // Display chatbot response
+            appendMessage('bot', botResponse);
+        }
+
+        // Get response function
+        function getResponse(message) {
+            // Check for predefined responses
+            for (const key in responses) {
+                if (message.includes(key)) {
+                    return responses[key];
+                }
+            }
+            // Default response
+            return responses["default"];
+        }
+
+        // Append message function
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            messageElement.textContent = message;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Event listeners
+        chatbotSendButton.addEventListener('click', sendMessage);
+        chatbotInputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
