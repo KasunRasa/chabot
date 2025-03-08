@@ -1,5 +1,17 @@
-// Chatbot UI Logic
+console.log('Chatbot script loaded!');
+
 (function() {
+    // Predefined responses
+    const responses = {
+        "hi": "Hello! How can I assist you today?",
+        "hello": "Hi there! What can I do for you?",
+        "how are you": "I'm just a bot, but I'm here to help!",
+        "what is your name": "I'm your friendly ISM Chatbot.",
+        "help": "Sure! Here are some things I can help with: \n1. Reset your password. \n2. Check system status. \n3. Provide IT support contact info.",
+        "bye": "Goodbye! Have a great day! 👋",
+        "default": "I'm sorry, I didn't understand that. Can you please rephrase?"
+    };
+
     // Create chatbot container
     const chatbotContainer = document.createElement('div');
     chatbotContainer.id = 'chatbot-container';
@@ -8,11 +20,12 @@
     chatbotContainer.style.right = '20px';
     chatbotContainer.style.width = '300px';
     chatbotContainer.style.height = '400px';
-    chatbotContainer.style.border = '1px solid #ccc';
+    chatbotContainer.style.border = '2px solid red';  // Debug style
     chatbotContainer.style.backgroundColor = '#fff';
     chatbotContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
     chatbotContainer.style.display = 'flex';
     chatbotContainer.style.flexDirection = 'column';
+    chatbotContainer.style.zIndex = '9999';  // Ensure it's on top
 
     // Create chatbot header
     const chatbotHeader = document.createElement('div');
@@ -67,6 +80,8 @@
     // Append chatbot container to the body
     document.body.appendChild(chatbotContainer);
 
+    console.log('Chatbot container created and appended to the body!');
+
     // Chatbot interaction logic
     chatbotSendButton.addEventListener('click', sendMessage);
     chatbotInputField.addEventListener('keypress', (e) => {
@@ -74,28 +89,29 @@
     });
 
     function sendMessage() {
-        const userMessage = chatbotInputField.value.trim();
+        const userMessage = chatbotInputField.value.trim().toLowerCase();
         if (!userMessage) return;
 
         // Display user message
         appendMessage('user', userMessage);
         chatbotInputField.value = '';
 
-        // Send message to chatbot backend
-        fetch('http://localhost:5000/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Display chatbot response
-            appendMessage('bot', data.response);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            appendMessage('bot', 'Sorry, something went wrong. Please try again.');
-        });
+        // Get chatbot response
+        const botResponse = getResponse(userMessage);
+
+        // Display chatbot response
+        appendMessage('bot', botResponse);
+    }
+
+    function getResponse(message) {
+        // Check for predefined responses
+        for (const key in responses) {
+            if (message.includes(key)) {
+                return responses[key];
+            }
+        }
+        // Default response
+        return responses["default"];
     }
 
     function appendMessage(sender, message) {
