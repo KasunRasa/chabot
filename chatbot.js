@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 console.log('Chatbot script loaded!');
 
 (function() {
@@ -84,12 +86,7 @@ console.log('Chatbot script loaded!');
         console.log('Chatbot container created and appended to the body!');
 
         // Chatbot interaction logic
-        chatbotSendButton.addEventListener('click', sendMessage);
-        chatbotInputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        function sendMessage() {
+        const sendMessage = function() {
             const userMessage = chatbotInputField.value.trim().toLowerCase();
             if (!userMessage) return;
 
@@ -102,9 +99,9 @@ console.log('Chatbot script loaded!');
 
             // Display chatbot response
             appendMessage('bot', botResponse);
-        }
+        };
 
-        function getResponse(message) {
+        const getResponse = function(message) {
             // Check for predefined responses
             for (const key in responses) {
                 if (message.includes(key)) {
@@ -113,15 +110,20 @@ console.log('Chatbot script loaded!');
             }
             // Default response
             return responses["default"];
-        }
+        };
 
-        function appendMessage(sender, message) {
+        const appendMessage = function(sender, message) {
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender}`;
             messageElement.textContent = message;
             chatbotMessages.appendChild(messageElement);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-        }
+        };
+
+        chatbotSendButton.addEventListener('click', sendMessage);
+        chatbotInputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     } catch (error) {
         console.error('Error in chatbot script:', error);
     }
