@@ -1,7 +1,11 @@
+
+
 body {
     font-family: Arial, sans-serif;
 }
-
+#chat-container {
+  z-index: 2147483647 !important; /* Maximum possible z-index */
+}
 #chatbot {
     position: fixed;
     bottom: 80px;
