@@ -1,22 +1,163 @@
-<script>
-  function sendToChatbot(chatSessionId, userMessage) {
-    fetch("http://10.10.55.151:5000/chatbot", {  // Send message to your laptop
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_session_id: chatSessionId, message: userMessage })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.response) {
-        // Display the bot's response in the chat widget
-        ZammadChat.addMessage({ message: data.response, sender: 'Agent' });
-      }
-    });
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget</title>
+    <style>
+        /* Chat widget styling */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            z-index: 10000;
+            display: none;
+        }
 
-  document.addEventListener("DOMContentLoaded", function() {
-    ZammadChat.on("message", function(message) {
-      sendToChatbot(message.chat_session_id, message.text);
-    });
-  });
-</script>
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 20%;
+        }
+
+        .bot-message {
+            background: #f1f1f1;
+            margin-right: 20%;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-toggle" onclick="toggleChat()">💬</div>
+    
+    <div class="chat-container" id="chatWindow">
+        <div class="chat-header" onclick="toggleChat()">
+            Chat Support
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let chatSessionId = Date.now().toString(); // Generate unique session ID
+        let chatVisible = false;
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatVisible = !chatVisible;
+            chatWindow.style.display = chatVisible ? 'block' : 'none';
+        }
+
+        function addMessage(message, isUser = true) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            userInput.value = '';
+
+            try {
+                const response = await fetch('http://localhost:5000/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_session_id: chatSessionId,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.response) {
+                    // Add bot response
+                    addMessage(data.response, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, there was an error connecting to the chatbot.', false);
+            }
+        }
+
+        // Handle Enter key
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
